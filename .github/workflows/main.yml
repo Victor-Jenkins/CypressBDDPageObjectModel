@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: Run Cypress tests and save logs to file
-        run: npx cypress run > cypress-logs.txt 2>&1 || true
+        run: npx cypress run || true
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
