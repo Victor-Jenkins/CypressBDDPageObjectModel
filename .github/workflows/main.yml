@@ -66,35 +66,32 @@ jobs:
             .summary {
               color: #00ff00;
             }
-            .circle-container {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 400px;
+            .chart {
+              width: 300px;
+              height: 300px;
+              margin: 20px auto;
             }
-            .circle {
-              width: 200px;
-              height: 200px;
-              border-radius: 50%;
-              background: transparent;
-              position: relative;
-              border: 3px solid white;
+            .chart-circle {
+              transform: rotate(-90deg);
             }
-            .sector.passed {
-              background-color: #00ff00;
+            .chart-circle .chart-segment {
+              transform-origin: center;
             }
-            .sector.failed {
-              background-color: #ff0000;
+            .chart-segment.passed {
+              fill: #00ff00;
             }
-            .sector.skipped {
-              background-color: #ffA500;
+            .chart-segment.failed {
+              fill: #ff0000;
             }
-          </style></head><body><div class='circle-container'>
-            <div class='circle'>
-              <div class='sector passed'></div>
-              <div class='sector failed'></div>
-              <div class='sector skipped'></div>
-            </div>
+            .chart-segment.skipped {
+              fill: #ffA500;
+            }
+          </style></head><body><div class='chart'>
+            <svg class='chart-circle' viewBox='0 0 32 32'>
+              <circle class='chart-segment passed' cx='16' cy='16' r='15.9155'></circle>
+              <circle class='chart-segment failed' cx='16' cy='16' r='15.9155'></circle>
+              <circle class='chart-segment skipped' cx='16' cy='16' r='15.9155'></circle>
+            </svg>
           </div><pre>" > cypress-report.html
           cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✔)/<span class="passed">\1<\/span>/g' | sed -E 's/(✖)/<span class="failed">\1<\/span>/g' | sed -E 's/(●)/<span class="skipped">\1<\/span>/g' >> cypress-report.html
           echo "</pre><span class='summary'>" >> cypress-report.html
@@ -113,9 +110,12 @@ jobs:
           name: cypress-html-report
           path: cypress-report.html
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.BDD }}
+      - name: Deploy Cypress HTML report to GitHub Pages
+        run: |
+          mkdir gh-pages
+          mv cypress-report.html gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.BDD }}
+
           publish_dir: ./_site  # Directorio donde se encuentra el sitio generado
 
