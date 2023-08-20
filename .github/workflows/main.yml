@@ -1,4 +1,4 @@
-name: Cypress Allure Report
+name: Cypress Mochawesome Report
 
 on:
   schedule:
@@ -23,21 +23,23 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Cypress tests and generate Allure report
-        run: |
-          npm test || true
-          npm run allure:clear
-          npm run allure:report
-          allure --version # Verifica que Allure esté disponible
+      - name: Run Cypress tests and generate Mochawesome JSON reports
+        run: npm test || true
 
-      - name: Upload Allure report as artifact
+      - name: Merge Mochawesome JSON reports
+        run: npx mochawesome-merge --reportDir cypress/reports/mochawesome > merged-report.json
+
+      - name: Generate Mochawesome HTML report
+        run: npx marge merged-report.json -o cypress/reports/mochawesome-html
+
+      - name: Upload Mochawesome HTML report as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: allure-report
-          path: allure-report
+          name: mochawesome-html-report
+          path: cypress/reports/mochawesome-html
 
-      - name: Deploy Allure report to GitHub Pages
+      - name: Deploy Mochawesome HTML report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.BDD }}
-          publish_dir: ./allure-report
+          publish_dir: ./cypress/reports/mochawesome-html
