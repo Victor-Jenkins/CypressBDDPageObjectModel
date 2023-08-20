@@ -26,20 +26,6 @@ jobs:
       - name: Run Cypress tests and save logs to file
         run: npx cypress run 2>&1 | tee cypress-logs.txt || true
 
-      - name: Count test results
-        id: counts
-        run: |
-          passed=$(jq -r '.runs[] | select(.stats.failures == 0) | .stats.tests' cypress-result.json)
-          failed=$(jq -r '.runs[] | select(.stats.failures > 0) | .stats.tests' cypress-result.json)
-          skipped=$(jq -r '.runs[] | select(.stats.pending > 0) | .stats.tests' cypress-result.json)
-          total=$(jq -r '.runs[] | .stats.tests' cypress-result.json)
-          echo "::set-output name=passed::$passed"
-          echo "::set-output name=failed::$failed"
-          echo "::set-output name=skipped::$skipped"
-          echo "::set-output name=total::$total"
-        env:
-          CYPRESS_CACHE_FOLDER: ${{ runner.temp }}/.cache/Cypress
-
       - name: Generate Cypress HTML report from logs
         run: |
           echo "<!DOCTYPE html><html><head><style>
@@ -56,48 +42,12 @@ jobs:
               white-space: pre-wrap;
               font-size: 14px;
             }
-            .circle-container {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 200px;
-            }
-            .circle {
-              width: 100px;
-              height: 100px;
-              border-radius: 50%;
-              background: transparent;
-              position: relative;
-              border: 3px solid white;
-            }
-            .sector {
-              width: 50%;
-              height: 100%;
-              clip-path: polygon(50% 50%, 100% 0, 100% 100%);
-              position: absolute;
-              transform-origin: 50% 100%;
-            }
             .passed {
-              background-color: #00ff00;
-              transform: rotate(calc($passed / $total * 360deg));
-            }
-            .failed {
-              background-color: #ff0000;
-              transform: rotate(calc($failed / $total * 360deg));
-            }
-            .skipped {
-              background-color: #ffA500;
-              transform: rotate(calc($skipped / $total * 360deg));
+              color: #00ff00;
             }
           </style></head><body><pre>" > cypress-report.html
-          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> cypress-report.html
-          echo "</pre><div class='circle-container'>
-            <div class='circle'>
-              <div class='sector passed'></div>
-              <div class='sector failed'></div>
-              <div class='sector skipped'></div>
-            </div>
-          </div></body></html>" >> cypress-report.html
+          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✓[^<]*)/<span class="passed">\1<\/span>/g' >> cypress-report.html
+          echo "</pre></body></html>" >> cypress-report.html
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
@@ -112,8 +62,10 @@ jobs:
           path: cypress-report.html
 
       - name: Deploy Cypress HTML report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.BDD }}
-          publish_dir: ./cypress-html-report # Cambiar a la carpeta que desees
+        run: |
+          mkdir gh-pages
+          mv cypress-report.html gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.BDD }}
+     
 
