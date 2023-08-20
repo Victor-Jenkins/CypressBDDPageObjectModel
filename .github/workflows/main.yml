@@ -28,6 +28,7 @@ jobs:
           npm test || true
           npm run allure:clear
           npm run allure:report
+          
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -40,10 +41,3 @@ jobs:
           github_token: ${{ secrets.BDD }}
           publish_dir: ./allure-report
 
-      - name: Deploy Allure report to Netlify
-        uses: nwtgck/actions-netlify@v1
-        with:
-          publish-dir: ./allure-report
-          deploy-message: Deploy Allure report to Netlify
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
