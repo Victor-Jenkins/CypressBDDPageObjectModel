@@ -1,4 +1,4 @@
-name: Cypress Mochawesome Report
+name: Cypress HTML Report
 
 on:
   schedule:
@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   cypress:
     runs-on: ubuntu-latest
@@ -22,22 +23,25 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Cypress tests and generate Mochawesome JSON reports
-        run: npx cypress run || true
+      - name: Run Cypress tests and save logs to file
+        run: npm test > cypress-logs.txt 2>&1 || true
 
-      - name: Generate Mochawesome HTML report
-        run: npx mochawesome-merge cypress/reports/mochawesome/*.json -o mochawesome-report.json && npx mochawesome-report-generator mochawesome-report.json
+      - name: Generate Cypress HTML report from logs
+        run: |
+          echo "Parsing Cypress logs..."
+          sed -n '/Running:/,$p' cypress-logs.txt > cypress-results.txt
+          echo "<!DOCTYPE html><html><body><pre>" > cypress-report.html
+          cat cypress-results.txt >> cypress-report.html
+          echo "</pre></body></html>" >> cypress-report.html
 
-      - name: Upload Mochawesome HTML report as artifact
+      - name: Upload Cypress HTML report as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mochawesome-html-report
-          path: mochawesome-report.html
+          name: cypress-html-report
+          path: cypress-report.html
 
-      - name: Deploy Mochawesome HTML report to GitHub Pages
+      - name: Deploy Cypress HTML report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-         
-
           github_token: ${{ secrets.BDD }}
-          publish_dir: ./cypress/reports/mochawesome-report
+          publish_dir: ./
