@@ -26,6 +26,18 @@ jobs:
       - name: Run Cypress tests and save logs to file
         run: npx cypress run 2>&1 | tee cypress-logs.txt || true
 
+      - name: Count test results
+        id: counts
+        run: |
+          passed=$(grep -o '✔  ' cypress-logs.txt | wc -l)
+          failed=$(grep -o '✖  ' cypress-logs.txt | wc -l)
+          skipped=$(grep -o '●  ' cypress-logs.txt | wc -l)
+          total=$((passed + failed + skipped))
+          echo "::set-output name=passed::$passed"
+          echo "::set-output name=failed::$failed"
+          echo "::set-output name=skipped::$skipped"
+          echo "::set-output name=total::$total"
+
       - name: Generate Cypress HTML report from logs
         run: |
           echo "<!DOCTYPE html><html><head><style>
@@ -58,11 +70,11 @@ jobs:
               display: flex;
               align-items: center;
               justify-content: center;
-              height: 200px;
+              height: 400px;
             }
             .circle {
-              width: 100px;
-              height: 100px;
+              width: 200px;
+              height: 200px;
               border-radius: 50%;
               background: transparent;
               position: relative;
@@ -77,17 +89,17 @@ jobs:
             .sector.skipped {
               background-color: #ffA500;
             }
-          </style></head><body><pre>" > cypress-report.html
-          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✓[^<]*)/<span class="passed">\1<\/span>/g' >> cypress-report.html
-          echo "</pre><span class='summary'>" >> cypress-report.html
-          cat cypress-logs.txt | grep "All specs passed" >> cypress-report.html
-          echo "</span><div class='circle-container'>
+          </style></head><body><div class='circle-container'>
             <div class='circle'>
               <div class='sector passed'></div>
               <div class='sector failed'></div>
               <div class='sector skipped'></div>
             </div>
-          </div></body></html>" >> cypress-report.html
+          </div><pre>" > cypress-report.html
+          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✔)/<span class="passed">\1<\/span>/g' | sed -E 's/(✖)/<span class="failed">\1<\/span>/g' | sed -E 's/(●)/<span class="skipped">\1<\/span>/g' >> cypress-report.html
+          echo "</pre><span class='summary'>" >> cypress-report.html
+          echo "Total Tests: ${{ steps.counts.outputs.total }}<br>Passed: <span class='passed'>${{ steps.counts.outputs.passed }}</span><br>Failed: <span class='failed'>${{ steps.counts.outputs.failed }}</span><br>Skipped: <span class='skipped'>${{ steps.counts.outputs.skipped }}</span>" >> cypress-report.html
+          echo "</span></body></html>" >> cypress-report.html
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
@@ -101,9 +113,9 @@ jobs:
           name: cypress-html-report
           path: cypress-report.html
 
-      - name: Deploy Cypress HTML report to GitHub Pages
-        run: |
-          mkdir gh-pages
-          mv cypress-report.html gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.BDD }}
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.BDD }}
+          publish_dir: ./_site  # Directorio donde se encuentra el sitio generado
+
