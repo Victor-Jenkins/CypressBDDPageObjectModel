@@ -28,9 +28,22 @@ jobs:
 
       - name: Generate Cypress HTML report from logs
         run: |
-          echo "<!DOCTYPE html><html><body><pre>" > cypress-report.html
+         echo "<!DOCTYPE html><html><head><style>
+         body {
+         font-family: Arial, sans-serif;
+          margin: 20px;
+          }
+         pre {
+          background-color: #f4f4f4;
+          padding: 10px;
+          border: 1px solid #ddd;
+          white-space: pre-wrap;
+          font-size: 14px;
+          }
+          </style></head><body><pre>" > cypress-report.html
           cat cypress-logs.txt >> cypress-report.html
           echo "</pre></body></html>" >> cypress-report.html
+
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
