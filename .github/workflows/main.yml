@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Run Cypress tests and generate Mochawesome JSON reports
-        run: npm test || true
+        run: npx cypress run || true
 
       - name: Generate Mochawesome HTML report
         run: npx mochawesome-report-generator cypress/reports/mochawesome/*.json
