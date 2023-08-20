@@ -26,20 +26,17 @@ jobs:
       - name: Run Cypress tests and generate Mochawesome JSON reports
         run: npm test || true
 
-      - name: Merge Mochawesome JSON reports
-        run: npx mochawesome-merge --reportDir cypress/reports/mochawesome > merged-report.json
-
       - name: Generate Mochawesome HTML report
-        run: npx marge merged-report.json -o cypress/reports/mochawesome-html
+        run: npx marge --reportDir cypress/reports/mochawesome --reportTitle "Cypress Mochawesome Report" --inline
 
       - name: Upload Mochawesome HTML report as artifact
         uses: actions/upload-artifact@v2
         with:
           name: mochawesome-html-report
-          path: cypress/reports/mochawesome-html
+          path: cypress/reports/mochawesome-report
 
       - name: Deploy Mochawesome HTML report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.BDD }}
-          publish_dir: ./cypress/reports/mochawesome-html
+          publish_dir: ./cypress/reports/mochawesome-report
