@@ -40,6 +40,13 @@ jobs:
 
       - name: Generate Cypress HTML report from logs
         run: |
+          passed=$(grep -o '✔  ' cypress-logs.txt | wc -l)
+          failed=$(grep -o '✖  ' cypress-logs.txt | wc -l)
+          skipped=$(grep -o '●  ' cypress-logs.txt | wc -l)
+          total=$((passed + failed + skipped))
+          passed_percent=$((passed * 100 / total))
+          failed_percent=$((failed * 100 / total))
+          skipped_percent=$((skipped * 100 / total))
           echo "<!DOCTYPE html><html><head><style>
             body {
               font-family: Arial, sans-serif;
@@ -70,21 +77,29 @@ jobs:
               width: 300px;
               height: 300px;
               margin: 20px auto;
+              position: relative;
             }
             .chart-circle {
               transform: rotate(-90deg);
             }
-            .chart-circle .chart-segment {
+            .chart-segment {
+              fill: transparent;
+              stroke-width: 32;
+              stroke-linecap: round;
               transform-origin: center;
+              transform: rotate(0deg);
             }
             .chart-segment.passed {
-              fill: #00ff00;
+              stroke: #00ff00;
+              stroke-dasharray: ${passed_percent} ${100 - passed_percent};
             }
             .chart-segment.failed {
-              fill: #ff0000;
+              stroke: #ff0000;
+              stroke-dasharray: ${failed_percent} ${100 - failed_percent};
             }
             .chart-segment.skipped {
-              fill: #ffA500;
+              stroke: #ffA500;
+              stroke-dasharray: ${skipped_percent} ${100 - skipped_percent};
             }
           </style></head><body><div class='chart'>
             <svg class='chart-circle' viewBox='0 0 32 32'>
@@ -116,6 +131,3 @@ jobs:
           mv cypress-report.html gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.BDD }}
-
-          publish_dir: ./_site  # Directorio donde se encuentra el sitio generado
-
