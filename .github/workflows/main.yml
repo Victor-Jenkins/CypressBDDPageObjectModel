@@ -26,12 +26,16 @@ jobs:
       - name: Run Cypress tests and save logs to file
         run: npm test > cypress-logs.txt 2>&1 || true
 
+      - name: Upload Cypress logs as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress-logs
+          path: cypress-logs.txt
+
       - name: Generate Cypress HTML report from logs
         run: |
-          echo "Parsing Cypress logs..."
-          sed -n '/Running:/,$p' cypress-logs.txt > cypress-results.txt
           echo "<!DOCTYPE html><html><body><pre>" > cypress-report.html
-          cat cypress-results.txt >> cypress-report.html
+          cat cypress-logs.txt >> cypress-report.html
           echo "</pre></body></html>" >> cypress-report.html
 
       - name: Upload Cypress HTML report as artifact
@@ -44,4 +48,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.BDD }}
-          publish_dir: ./
+          publish_dir: ./cypress-html-report # Cambiar a la carpeta que desees
