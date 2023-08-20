@@ -32,18 +32,22 @@ jobs:
          body {
           font-family: Arial, sans-serif;
           margin: 20px;
+          background-color: black;
+          color: white;
          }
          pre {
-          background-color: #f4f4f4;
+          background-color: #333;
           padding: 10px;
           border: 1px solid #ddd;
           white-space: pre-wrap;
           font-size: 14px;
-          }
+         }
+         .passed {
+          color: #00ff00;
+         }
          </style></head><body><pre>" > cypress-report.html
-         cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> cypress-report.html
+         cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✓[^<]*)/<span class="passed">\1<\/span>/g' >> cypress-report.html
          echo "</pre></body></html>" >> cypress-report.html
-
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
@@ -62,3 +66,4 @@ jobs:
         with:
           github_token: ${{ secrets.BDD }}
           publish_dir: ./cypress-html-report # Cambiar a la carpeta que desees
+
