@@ -26,27 +26,8 @@ jobs:
       - name: Run Cypress tests and save logs to file
         run: npx cypress run 2>&1 | tee cypress-logs.txt || true
 
-      - name: Count test results
-        id: counts
-        run: |
-          passed=$(grep -o '✔  ' cypress-logs.txt | wc -l)
-          failed=$(grep -o '✖  ' cypress-logs.txt | wc -l)
-          skipped=$(grep -o '●  ' cypress-logs.txt | wc -l)
-          total=$((passed + failed + skipped))
-          echo "::set-output name=passed::$passed"
-          echo "::set-output name=failed::$failed"
-          echo "::set-output name=skipped::$skipped"
-          echo "::set-output name=total::$total"
-
       - name: Generate Cypress HTML report from logs
         run: |
-          passed=$(grep -o '✔  ' cypress-logs.txt | wc -l)
-          failed=$(grep -o '✖  ' cypress-logs.txt | wc -l)
-          skipped=$(grep -o '●  ' cypress-logs.txt | wc -l)
-          total=$((passed + failed + skipped))
-          passed_percent=$((passed * 100 / total))
-          failed_percent=$((failed * 100 / total))
-          skipped_percent=$((skipped * 100 / total))
           echo "<!DOCTYPE html><html><head><style>
             body {
               font-family: Arial, sans-serif;
@@ -64,54 +45,9 @@ jobs:
             .passed {
               color: #00ff00;
             }
-            .failed {
-              color: #ff0000;
-            }
-            .skipped {
-              color: #ffA500;
-            }
-            .summary {
-              color: #00ff00;
-            }
-            .chart {
-              width: 300px;
-              height: 300px;
-              margin: 20px auto;
-              position: relative;
-            }
-            .chart-circle {
-              transform: rotate(-90deg);
-            }
-            .chart-segment {
-              fill: transparent;
-              stroke-width: 32;
-              stroke-linecap: round;
-              transform-origin: center;
-              transform: rotate(0deg);
-            }
-            .chart-segment.passed {
-              stroke: #00ff00;
-              stroke-dasharray: ${passed_percent} ${100 - passed_percent};
-            }
-            .chart-segment.failed {
-              stroke: #ff0000;
-              stroke-dasharray: ${failed_percent} ${100 - failed_percent};
-            }
-            .chart-segment.skipped {
-              stroke: #ffA500;
-              stroke-dasharray: ${skipped_percent} ${100 - skipped_percent};
-            }
-          </style></head><body><div class='chart'>
-            <svg class='chart-circle' viewBox='0 0 32 32'>
-              <circle class='chart-segment passed' cx='16' cy='16' r='15.9155'></circle>
-              <circle class='chart-segment failed' cx='16' cy='16' r='15.9155'></circle>
-              <circle class='chart-segment skipped' cx='16' cy='16' r='15.9155'></circle>
-            </svg>
-          </div><pre>" > cypress-report.html
-          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✔)/<span class="passed">\1<\/span>/g' | sed -E 's/(✖)/<span class="failed">\1<\/span>/g' | sed -E 's/(●)/<span class="skipped">\1<\/span>/g' >> cypress-report.html
-          echo "</pre><span class='summary'>" >> cypress-report.html
-          echo "Total Tests: ${{ steps.counts.outputs.total }}<br>Passed: <span class='passed'>${{ steps.counts.outputs.passed }}</span><br>Failed: <span class='failed'>${{ steps.counts.outputs.failed }}</span><br>Skipped: <span class='skipped'>${{ steps.counts.outputs.skipped }}</span>" >> cypress-report.html
-          echo "</span></body></html>" >> cypress-report.html
+          </style></head><body><pre>" > cypress-report.html
+          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✓[^<]*)/<span class="passed">\1<\/span>/g' >> cypress-report.html
+          echo "</pre></body></html>" >> cypress-report.html
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
