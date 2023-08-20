@@ -28,7 +28,8 @@ jobs:
           npm test || true
           npm run allure:clear
           npm run allure:report
-          
+          allure --version # Verifica que Allure esté disponible
+
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -40,4 +41,3 @@ jobs:
         with:
           github_token: ${{ secrets.BDD }}
           publish_dir: ./allure-report
-
