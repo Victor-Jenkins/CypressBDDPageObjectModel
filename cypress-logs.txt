@@ -1,5 +1,0 @@
-
-> HiberusProject@2.2.0 test /home/runner/work/CypressBDDPageObjectModel/CypressBDDPageObjectModel
-> echo 'Error: no test specified'
-
-Error: no test specified
