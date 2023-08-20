@@ -30,9 +30,9 @@ jobs:
         run: |
          echo "<!DOCTYPE html><html><head><style>
          body {
-         font-family: Arial, sans-serif;
+          font-family: Arial, sans-serif;
           margin: 20px;
-          }
+         }
          pre {
           background-color: #f4f4f4;
           padding: 10px;
@@ -40,9 +40,9 @@ jobs:
           white-space: pre-wrap;
           font-size: 14px;
           }
-          </style></head><body><pre>" > cypress-report.html
-          cat cypress-logs.txt >> cypress-report.html
-          echo "</pre></body></html>" >> cypress-report.html
+         </style></head><body><pre>" > cypress-report.html
+         cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' >> cypress-report.html
+         echo "</pre></body></html>" >> cypress-report.html
 
 
       - name: Upload Cypress logs as artifact
