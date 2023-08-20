@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: Run Cypress tests and save logs to file
-        run: npx cypress run > cypress-logs.txt 2>&1 || true
+        run: npx cypress run 2>&1 | tee cypress-logs.txt || true
 
       - name: Generate Cypress HTML report from logs
         run: |
@@ -49,4 +49,3 @@ jobs:
         with:
           github_token: ${{ secrets.BDD }}
           publish_dir: ./cypress-html-report # Cambiar a la carpeta que desees
-
