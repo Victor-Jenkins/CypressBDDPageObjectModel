@@ -11,7 +11,9 @@
     "allure:clear": "rm -r allure-results/ allure-report cypress/screenshots || true",
     "allure:report": "allure generate allure-results --clean -o allure-report",
     "allure:history": "mv -f allure-report/history allure-results/history && rm -r allure-report || true",
-   
+    "start": "my-server -p 3030 --https",
+    "cy:run": "cypress run",
+    "cy:ci": "START_SERVER_AND_TEST_INSECURE=1 start-server-and-test start https-get://localhost:3030 cy:run",
       "start": "npx cypress run"
     
     
