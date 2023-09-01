@@ -11,13 +11,12 @@
     "allure:clear": "rm -r allure-results/ allure-report cypress/screenshots || true",
     "allure:report": "allure generate allure-results --clean -o allure-report",
     "allure:history": "mv -f allure-report/history allure-results/history && rm -r allure-report || true",
-    "start": "my-server -p 3030 --https",
+    "start": "npx cypress run",
     "cy:run": "cypress run",
     "cy:ci": "START_SERVER_AND_TEST_INSECURE=1 start-server-and-test start https-get://localhost:3030 cy:run",
-      "start": "npx cypress run"
-    
-    
+    "cucumber-html-report": "node cucumber-html-report.js"
   
+    
   
   },
   "keywords": [
@@ -31,11 +30,20 @@
     "@shelex/cypress-allure-plugin": "^2.34.0",
     "cypress": "^12.17.2",
     "cypress-browser-extension-plugin": "^0.1.0",
-    "cypress-cucumber-preprocessor": "^4.3.1",
+    "cypress-cucumber-preprocessor": "5.1.3",
     "esbuild": "^0.16.4",
-    "multiple-cucumber-html-reporter": "^3.0.1"
+    "multiple-cucumber-html-reporter": "^3.4.0"
   },
   "dependencies": {
     "cucumber": "^6.0.7"
+  },
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": true,
+    "cucumberJson": {
+      "generate": true,
+      "outputFolder": "cypress/cucumber-json",
+      "filePrefix": "",
+      "fileSuffix": ".cucumber"
+    }
   }
 }

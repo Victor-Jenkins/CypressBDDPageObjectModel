@@ -1,0 +1,45 @@
+[
+    {
+      "id": "1",
+      "keyword": "Feature",
+      "name": "Sample Feature",
+      "description": "",
+      "line": 1,
+      "elements": [
+        {
+          "id": "1",
+          "keyword": "Scenario",
+          "name": "Sample Scenario",
+          "line": 3,
+          "steps": [
+            {
+              "keyword": "Given",
+              "name": "I have a sample step",
+              "result": {
+                "status": "passed",
+                "duration": 10
+              }
+            },
+            {
+              "keyword": "When",
+              "name": "I perform an action",
+              "result": {
+                "status": "passed",
+                "duration": 15
+              }
+            },
+            {
+              "keyword": "Then",
+              "name": "I should see the result",
+              "result": {
+                "status": "failed",
+                "error_message": "Expected result not found",
+                "duration": 5
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+  
