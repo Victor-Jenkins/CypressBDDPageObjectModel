@@ -21,8 +21,8 @@ jobs:
       - name: Remove existing dependencies
         run: rm -rf node_modules package-lock.json
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies with --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Run Cypress tests and save logs to file
         run: npx cypress run 2>&1 | tee cypress-logs.txt || true
