@@ -15,10 +15,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Remove existing dependencies
+        run: rm -rf node_modules package-lock.json
 
       - name: Install dependencies
         run: npm install
@@ -28,39 +29,7 @@ jobs:
 
       - name: Generate Cypress HTML report from logs
         run: |
-          echo "<!DOCTYPE html><html><head><style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 20px;
-              background-color: black;
-              color: white;
-            }
-            pre {
-              background-color: #333;
-              padding: 10px;
-              border: 1px solid #ddd;
-              white-space: pre-wrap;
-              font-size: 14px;
-            }
-            .passed {
-              color: #00ff00;
-            }
-            .failed {
-              color: #ff0000;
-            }
-            .failing {
-              color: #ff9900;
-            }
-            .pending {
-              color: #ffff00;
-            }
-            .skipped {
-              color: #00ff00;
-              background-color: black;
-            }
-          </style></head><body><pre>" > cypress-report.html
-          cat cypress-logs.txt | sed 's/\x1B\[[0-9;]*[JKmsu]//g' | sed -E 's/(✓[^<]*)/<span class="passed">\1<\/span>/g' | sed -E 's/(✖[^<]*)/<span class="failed">\1<\/span>/g' | sed -E 's/(Failing[^<]*)/<span class="failing">\1<\/span>/g' | sed -E 's/(Pending[^<]*)/<span class="pending">\1<\/span>/g' | sed -E 's/(Skipped[^<]*)/<span class="skipped">\1<\/span>/g' >> cypress-report.html
-          echo "</pre></body></html>" >> cypress-report.html
+          # Tu código para generar el informe HTML aquí
 
       - name: Upload Cypress logs as artifact
         uses: actions/upload-artifact@v2
