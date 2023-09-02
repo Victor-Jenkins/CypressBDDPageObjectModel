@@ -1,47 +1,32 @@
-name: Cypress HTML Report
-
-on:
-  schedule:
-    - cron: "0 0 * * 1"  # Ejecutar una vez a la semana, los lunes a la medianoche
-  push:
-    branches:
-      - main
-
+name: End-to-end tests
+on: [push]
 jobs:
-  cypress:
-    runs-on: ubuntu-latest
-
+  cypress-run:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Update npm
-        run: npm install -g npm@latest
-
-      - name: Remove existing dependencies
-        run: rm -rf node_modules package-lock.json
-
-      - name: Install dependencies with --legacy-peer-deps
-        run: npm install --legacy-peer-deps
-
-      - name: Run Cypress tests and save logs to file
-        run: npx cypress run 2>&1 | tee cypress-logs.txt || true
-
-      - name: Generate Cypress HTML report from logs
-        run: |
-          # Tu código para generar el informe HTML aquí
-
-      - name: Upload Cypress logs as artifact
-        uses: actions/upload-artifact@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+      # after the test run completes
+      # store videos and any screenshots
+      # NOTE: screenshots will be generated only if E2E test failed
+      # thus we store screenshots only on failures
+      # Alternative: create and commit an empty cypress/screenshots folder
+      # to always have something to upload
+      - uses: actions/upload-artifact@v3
+        if: failure()
         with:
-          name: cypress-logs
-          path: cypress-logs.txt
-
-      - name: Upload Cypress HTML report as artifact
-        uses: actions/upload-artifact@v2
+          name: cypress-screenshots
+          path: cypress/screenshots
+      # Test run video was always captured, so this action uses "always()" condition
+      - uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: cypress-html-report
-          path: cypress-report.html
+          name: cypress-videos
+          path: cypress/videos
 
       - name: Deploy Cypress HTML report to GitHub Pages
         run: |
