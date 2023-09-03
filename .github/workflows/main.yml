@@ -6,12 +6,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
+      # Limpiar la caché de npm
+      - name: Clear npm cache
+        run: npm cache clean --force
+      # Install NPM dependencies usando npm ci
+      - name: Install npm dependencies
+        run: npm ci
+      # Run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v5
-      # after the test run completes
-      # store videos and any screenshots
+      # After the test run completes
+      # Store videos and any screenshots
       # NOTE: screenshots will be generated only if E2E test failed
       # thus we store screenshots only on failures
       # Alternative: create and commit an empty cypress/screenshots folder
@@ -27,7 +32,6 @@ jobs:
         with:
           name: cypress-videos
           path: cypress/videos
-
       - name: Deploy Cypress HTML report to GitHub Pages
         run: |
           mkdir gh-pages
